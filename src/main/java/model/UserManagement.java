@@ -90,18 +90,14 @@ public class UserManagement {
     //What if user is blocked already??
     public void blockUser(String userName) {
         User.status unblocked = User.status.BLOCKED;
-        if (changeUserStatus(userName, unblocked)) {
-            return;
-        } else {
+        if (!changeUserStatus(userName, unblocked)) {
             throw new BusinessException("Invalid User Name");
         }
     }
 
     public void unblockUser(String userName) {
         User.status unblocked = User.status.UNBLOCKED;
-        if (changeUserStatus(userName, unblocked)) {
-            return;
-        } else {
+        if (!changeUserStatus(userName, unblocked)) {
             throw new BusinessException("Invalid User Name");
         }
     }
