@@ -6,6 +6,7 @@ public class AuctionManagement {
 
     private final List<Auction> allAuctions = new ArrayList<>();
     private final List<Bid> allBids = new ArrayList<>();
+    private final List<Bid> winningBids = new ArrayList<>();
 
     public void createAuction(String auctionId, String ownerId, String symbol, int quantity, Double minimumPrice) {
         if (ownerId == null) {
@@ -41,9 +42,9 @@ public class AuctionManagement {
         if (!currentAuction.getOwnerId().equals(userId)) {
             throw new BusinessException("This user can not close the auction!");
         }
-        List<Bid> winningBids = setWinningBids(auctionId);
+        List<Bid> auctionWinningBids = setWinningBids(auctionId);
         currentAuction.setAuctionStatus(Auction.status.CLOSED);
-        return winningBids;
+        return auctionWinningBids;
     }
 
     public List<Auction> getAllUserAuctions(String userId) {
@@ -54,7 +55,6 @@ public class AuctionManagement {
         return allAuctions.stream().filter((Auction) -> Auction.getAuctionId().equals(auctionId)).findAny().orElseThrow(() -> new BusinessException("Invalid Auction ID"));
     }
 
-    //do we have to consider time?
     public void createBid(String auctionId, String ownerId, int quantity, Double cost) {
         Auction currentAuction = getAuction(auctionId);
         if (currentAuction.getOwnerId().equals(ownerId)) {
@@ -77,24 +77,47 @@ public class AuctionManagement {
         return currentAuctionBids;
     }
 
+    public List<Bid> getAllUserBids(String userName) {
+        return allBids.stream().filter(bid -> bid.getOwnerId().equals(userName)).toList();
+    }
+
+    public List<Bid> getUserWonBids(String userName) {
+        return winningBids.stream().filter(bid -> bid.getOwnerId().equals(userName)).toList();
+    }
+
+    public List<Bid> getUserLostBids(String userName) {
+        List<Bid> allUserClosedBids=getallClosedUserBids(userName);
+        allUserClosedBids.removeAll(winningBids);
+        return allUserClosedBids;
+    }
+
+    private List<Bid> getallClosedUserBids(String userName) {
+       List <Bid> allClosedUserBids= allBids.stream().filter(bid -> {
+            List<String> closedAuctionIds = allAuctions.stream().filter(auction -> auction.getAuctionStatus().equals(Auction.status.CLOSED)).map(auction -> auction.getAuctionId()).toList();
+            return closedAuctionIds.contains(bid.getAuctionId());
+        }).toList();
+
+       return allClosedUserBids;
+    }
+
 
     private List<Bid> setWinningBids(String auctionId) {
         Auction currentAuction = getAuction(auctionId);
         List<Bid> allSortedBids = getAllBids(auctionId);
-        List<Bid> winningBids = new ArrayList<>();
+        List<Bid> auctionWinningBids = new ArrayList<>();
         allSortedBids.stream().filter(bid -> bid.getAuctionId().equals(auctionId)).forEach(bid -> {
             int bidQuantity = bid.getQuantity();
             int auctionQuantity = currentAuction.getQuantity();
             if (auctionQuantity > bidQuantity) {
                 currentAuction.setQuantity(auctionQuantity - bidQuantity);
-                winningBids.add(bid);
+                auctionWinningBids.add(bid);
             } else if (auctionQuantity > 0) {
                 bid.setQuantity(auctionQuantity);
                 currentAuction.setQuantity(0);
-                winningBids.add(bid);
+                auctionWinningBids.add(bid);
             }
         });
-
-        return winningBids;
+        auctionWinningBids.stream().forEach(bid -> winningBids.add(bid));
+        return auctionWinningBids;
     }
 }

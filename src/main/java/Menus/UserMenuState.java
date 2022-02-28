@@ -7,6 +7,7 @@ import model.UserManagement;
 public class UserMenuState extends State{
     @Override
     public State start() {
+        display("Welcome "+MenuData.currentUser.getFirstName()+" "+ MenuData.currentUser.getLastName());
         display("===================================\n" +
                 "1. Auction management \n" +
                 "2. Log out \n" +

@@ -6,6 +6,7 @@ import model.User;
 public class AdminMenuState extends  State {
     @Override
     public State start() {
+        display("Welcome "+MenuData.currentUser.getFirstName()+" "+ MenuData.currentUser.getLastName());
         display("===================================\n" +
                 "1. User management \n" +
                 "2. Auction management \n" +
