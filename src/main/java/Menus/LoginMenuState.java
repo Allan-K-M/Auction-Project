@@ -5,52 +5,28 @@ import model.UserManagement;
 
 import java.util.Optional;
 
-public class LoginMenuState extends MenuContext implements MenuStateInterface {
-    public LoginMenuState(){
+public class LoginMenuState extends State {
 
-        display("Enter a your username and Password to log in");
-        var userName=userInput("Enter Your Name: ");
+    @Override
+    public State start() {
 
-        UserManagement login=new UserManagement();
-        Optional<User>currentUserOptional=login.getUser(userName);
-        if(currentUserOptional.isPresent()){
-            User currentUser=currentUserOptional.get();
-            var password= userInput("Enter your password: ");
-            if(currentUser.checkPassword(password)) {
-                return;
+        String userName = read("Enter your User name: ");
+        String password = read("Enter your password: ");
+        Optional<User> currentUserOptional = MenuData.USER_MANAGEMENT.getUser(userName);
+        if (currentUserOptional.isEmpty() || !currentUserOptional.get().checkPassword(password)) {
+            display("Invalid User Name or password! ");
+            String proceed = read("Enter 1 to retry or 2 to Exit: ");
+            if (proceed.equals("2")) {
+                return MenuData.exitMenuState.start();
             }
+            return start();
         }
-            display("Invalid username!");
-            new LoginMenuState();
 
+        MenuData.currentUser = currentUserOptional.get();
 
-
-
-    }
-
-
-    @Override
-    public void login() {
-
-    }
-
-    @Override
-    public void quit() {
-
-    }
-
-    @Override
-    public void manageUsers() {
-
-    }
-
-    @Override
-    public void manageAuctions() {
-
-    }
-
-    @Override
-    public void goBack() {
-
+        if (currentUserOptional.get().isAdmin()) {
+            return MenuData.adminMenuState.start();
+        }
+        return MenuData.userMenuState.start();
     }
 }

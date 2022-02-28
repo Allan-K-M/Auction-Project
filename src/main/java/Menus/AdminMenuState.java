@@ -1,53 +1,30 @@
 package Menus;
 
-import model.BusinessException;
+
 import model.User;
-import model.UserManagement;
 
-//Yo
-public class AdminMenuState extends MenuContext implements MenuStateInterface{
-    private String userName;
-    private User user;
-    private UserManagement adminManagement;
-    public AdminMenuState(String userName){
-
-        if (userName.equals(null)) {
-            throw new BusinessException("User name can not be Null");
+public class AdminMenuState extends  State {
+    @Override
+    public State start() {
+        display("===================================\n" +
+                "1. User management \n" +
+                "2. Auction management \n" +
+                "3. Log out \n" +
+                "===================================");
+        String option=read();
+        if(option.equals("1")){
+            return MenuData.manageUsersState.start();
         }
-        this.userName=userName;
-        this.user= (User) adminManagement.getUser(userName).get();
+        if(option.equals("2")){
+            return MenuData.manageAuctionsState.start();
+        }
+        if(option.equals("3")){
+            MenuData.currentUser=null;
+            return MenuData.homeMenuState.start();
+        }
 
-        display("Welcome "+user.getFirstName()+" "+user.getLastName());
-        display("==========================");
-        display("1. Auction Management");
-        display("2. User Management");
-        display("3. Log Out");
-        display("==========================");
-        userInput();
-    }
-
-    @Override
-    public void login() {
-
-    }
-
-    @Override
-    public void quit() {
-
-    }
-
-    @Override
-    public void manageUsers() {
-
-    }
-
-    @Override
-    public void manageAuctions() {
-
-    }
-
-    @Override
-    public void goBack() {
+        display("Invalid choice");
+        return start();
 
     }
 }

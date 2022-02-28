@@ -7,8 +7,27 @@ public class AuctionManagement {
     private final List<Auction> allAuctions = new ArrayList<>();
     private final List<Bid> allBids = new ArrayList<>();
 
-    public void createAuction(String auctionId, String ownerId, String symbol, int quantity, int minimumPrice) {
+    public void createAuction(String auctionId, String ownerId, String symbol, int quantity, Double minimumPrice) {
+        if (ownerId == null) {
+            throw new BusinessException("Invalid User Id!");
 
+        }
+        if (auctionId == null) {
+            throw new BusinessException("Invalid Aucrtion Id!");
+
+        }
+        if (symbol == null) {
+            throw new BusinessException("Invalid Symbol!");
+
+        }
+        if (quantity <= 0) {
+            throw new BusinessException("Invalid Quantity!");
+
+        }
+        if (minimumPrice <= 0) {
+            throw new BusinessException("Invalid Minimum Cost!");
+
+        }
         Optional<Auction> auctionAlreadyExist = allAuctions.stream().filter((auction) -> auction.getAuctionId().equals(auctionId)).findAny();
         if (auctionAlreadyExist.isPresent()) {
             throw new BusinessException("Auction Already exist");
@@ -17,7 +36,6 @@ public class AuctionManagement {
         allAuctions.add(newAuction);
     }
 
-    //Separate into two methods
     public List<Bid> closeAuction(String userId, String auctionId) {
         Auction currentAuction = getAuction(auctionId);
         if (!currentAuction.getOwnerId().equals(userId)) {
@@ -28,9 +46,7 @@ public class AuctionManagement {
         return winningBids;
     }
 
-    //return list instead of optional
     public List<Auction> getAllUserAuctions(String userId) {
-
         return allAuctions.stream().filter((auction) -> auction.getOwnerId().equals(userId)).toList();
     }
 
@@ -39,7 +55,7 @@ public class AuctionManagement {
     }
 
     //do we have to consider time?
-    public void createBid(String auctionId, String ownerId, int quantity, int cost) {
+    public void createBid(String auctionId, String ownerId, int quantity, Double cost) {
         Auction currentAuction = getAuction(auctionId);
         if (currentAuction.getOwnerId().equals(ownerId)) {
             throw new BusinessException("Owner can not bid on their own auction!");
@@ -65,19 +81,18 @@ public class AuctionManagement {
         Auction currentAuction = getAuction(auctionId);
         List<Bid> allSortedBids = getAllBids(auctionId);
         List<Bid> winningBids = new ArrayList<>();
-        //for each instead
-        while (currentAuction.getQuantity() > 0) {
-            Bid topBid = allSortedBids.remove(0);
-            int bidQuantity = topBid.getQuantity();
-            int previousAuctionQuantity = currentAuction.getQuantity();
-            if (previousAuctionQuantity > bidQuantity) {
-                currentAuction.setQuantity(previousAuctionQuantity - bidQuantity);
-            } else {
-                topBid.setQuantity(previousAuctionQuantity);
+        allSortedBids.stream().filter(bid -> bid.getAuctionId().equals(auctionId)).forEach(bid -> {
+            int bidQuantity = bid.getQuantity();
+            int auctionQuantity = currentAuction.getQuantity();
+            if (auctionQuantity > bidQuantity) {
+                currentAuction.setQuantity(auctionQuantity - bidQuantity);
+                winningBids.add(bid);
+            } else if (auctionQuantity > 0) {
+                bid.setQuantity(auctionQuantity);
                 currentAuction.setQuantity(0);
+                winningBids.add(bid);
             }
-            winningBids.add(topBid);
-        }
+        });
 
         return winningBids;
     }

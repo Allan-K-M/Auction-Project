@@ -9,17 +9,15 @@ public class UserManagement {
 
     public UserManagement() {
         createUser("Allan", "3r3", "Allan", "Mwangi", "Adaptive", true);
-        createUser("Kyle", "3r3", "Kyle", "Tapang", "Adaptive", true);
-
-        createUser("Mark", "Dog1", "Mark", "White", "Bank Of America", true);
-        createUser("Peter", "Dog1", "Peter", "Parker", "Bank Of America", true);
+        createUser("Kyle", "3r3", "Kyle", "Tapang", "Adaptive", false);
+        createUser("Mark", "Dog1", "Mark", "White", "Bank Of America", false);
+        createUser("Peter", "Dog1", "Peter", "Parker", "Bank Of America", false);
         createUser("John", "Dog1", "John", "Blue", "ADP", false);
 
     }
 
 
     public void createUser(String userName, String password, String firstName, String lastName, String organisationName, boolean isAdmin) {
-//null checkers
 
         if (userName == null) {
             throw new BusinessException("Invalid User Name");
@@ -64,17 +62,8 @@ public class UserManagement {
     }
 
     //return list of all users
-    public List<String> getAllUsers() {
-        List<String> userNamesList = new ArrayList<>();
-
-        for (int i = 0; i < users.size(); i++) {
-            StringBuilder usersNames = new StringBuilder();
-            User currentUser = users.get(i);
-            usersNames.append(currentUser.getFirstName() + "  " + currentUser.getLastName() + "  " + currentUser.getUserName());
-            userNamesList.add(String.valueOf(usersNames));
-        }
-
-        return userNamesList;
+    public List<User> getAllUsers() {
+        return users;
     }
 
     private boolean changeUserStatus(String userName, User.status desiredStatus) {

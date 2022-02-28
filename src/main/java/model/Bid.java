@@ -2,13 +2,13 @@ package model;
 
 public class Bid {
     private int quantity;
-    private int value;
+    private Double value;
     private String auctionId;
     private String ownerId;
 
 
 
-    public Bid(String auctionId, String ownerId, int quantity, int value) {
+    public Bid(String auctionId, String ownerId, int quantity, Double value) {
 
         if(auctionId==null){
             throw new BusinessException("Invalid Auction ID");
@@ -45,7 +45,7 @@ public class Bid {
         return quantity;
     }
 
-    public int getValue() {
+    public Double getValue() {
         return value;
     }
 }
