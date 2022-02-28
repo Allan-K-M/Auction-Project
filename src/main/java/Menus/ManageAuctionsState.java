@@ -1,6 +1,10 @@
 package Menus;
 
+import model.Auction;
+import model.Bid;
 import model.BusinessException;
+
+import java.util.List;
 
 public class ManageAuctionsState extends State{
     @Override
@@ -47,27 +51,72 @@ public class ManageAuctionsState extends State{
             String ownerId=MenuData.currentUser.getUserName();
             MenuData.AUCTION_MANAGEMENT.createAuction(auctionId,ownerId,symbol,quantity,minimumPrice);
 
+            display(" Auction id "+auctionId+ " created successfully! ");
         } catch (BusinessException |NumberFormatException e) {
-            System.out.println(" Failed to create Auction  "+e.getMessage());
+            System.out.println(" Failed to create Auction! "+e.getMessage());
 
         }
         return MenuData.manageAuctionsState.start();
     }
 
     private State seeAuctions() {
+        List<Auction>allUserAuctions=MenuData.AUCTION_MANAGEMENT.getAllUserAuctions(MenuData.currentUser.getUserName());
+        if(allUserAuctions.isEmpty()){
+            display("You currently have no auctions! ");
+            return MenuData.manageAuctionsState.start();
+        }
+        allUserAuctions.stream()
+                .forEach(auction -> {
+                    display("Auction Id || AuctionStatus || Auction Symbol || Auction Quantity ");
+                    display(auction.getAuctionId()+" || "+auction.getAuctionStatus()+" || "+auction.getSymbol()+" || "+auction.getQuantity());
+                    List<Bid>allAuctionsBids=MenuData.AUCTION_MANAGEMENT.getAllBids(auction.getAuctionId());
+                    if(allAuctionsBids.isEmpty()){
+                        display("There are no bids yet for your Auction! ");
+                    }
+                    allAuctionsBids.stream().forEach(
+                            bid -> {
+                                display("Owner Id || Price || Quantity ");
+                                display(bid.getOwnerId()+" || "+bid.getValue()+" || "+bid.getQuantity());
+                            }
+                    );
 
-        return null;
+                });
 
-
+        return MenuData.manageAuctionsState.start();
     }
 
     private State closeAuction() {
-        return null;
+        try {
+            String userName=MenuData.currentUser.getUserName();
+            String auctionId=read("Enter your Auction ID: ");
+            List<Bid>winningBids=MenuData.AUCTION_MANAGEMENT.closeAuction(userName,auctionId);
+            display("Auction Closed Successfully! ");
+            display("============================");
+            display("Owner Id || Price || Quantity ");
+            winningBids.stream()
+                    .forEach(bid -> {
+
+                        display(bid.getOwnerId()+"   ||     "+bid.getValue()+"   ||     "+bid.getQuantity());
+                    });
+        } catch (BusinessException e) {
+            display("Failed to Close Auction: "+e.getMessage());
+        }
+        return MenuData.manageAuctionsState.start();
     }
 
 
     private State bid() {
-        return null;
+        try {
+
+
+            String auctionId = read("Enter the Auction Id of the Auction you wish to bid on: ");
+            Double price = readDouble("Enter the price you wish to bid it for: ");
+            int quantity = readInt("How many would you like to purchase: ");
+            MenuData.AUCTION_MANAGEMENT.createBid(auctionId, MenuData.currentUser.getUserName(), quantity, price);
+        }catch (BusinessException | NumberFormatException e){
+            display(" Failed to create Bid! "+e.getMessage());
+        }
+        return MenuData.manageAuctionsState.start();
     }
 
     private State getWonBids() {

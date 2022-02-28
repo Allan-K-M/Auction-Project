@@ -77,7 +77,8 @@ public class AuctionManagement {
         return currentAuctionBids;
     }
 
-    public List<Bid> setWinningBids(String auctionId) {
+
+    private List<Bid> setWinningBids(String auctionId) {
         Auction currentAuction = getAuction(auctionId);
         List<Bid> allSortedBids = getAllBids(auctionId);
         List<Bid> winningBids = new ArrayList<>();
