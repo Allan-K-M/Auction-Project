@@ -29,6 +29,10 @@ public class AuctionManagement {
             throw new BusinessException("Invalid Minimum Cost!");
 
         }
+        if (minimumPrice==null) {
+            throw new BusinessException("Invalid Minimum Cost!");
+
+        }
         Optional<Auction> auctionAlreadyExist = allAuctions.stream().filter((auction) -> auction.getAuctionId().equals(auctionId)).findAny();
         if (auctionAlreadyExist.isPresent()) {
             throw new BusinessException("Auction Already exist");
@@ -64,9 +68,21 @@ public class AuctionManagement {
         if (currentAuction.getAuctionStatus() == Auction.status.CLOSED) {
             throw new BusinessException("Auction is already closed. Can not bid!");
         }
-        if (currentAuction.getQuantity() < quantity) {
-            throw new BusinessException("The quantity is greater than what is available! ");
+        if(ownerId==null){
+            throw new BusinessException("Invalid Owner ID");
         }
+
+        if(auctionId==null){
+            throw new BusinessException("Invalid Auction ID");
+        }
+
+        if(quantity<=0){
+            throw new BusinessException("Invalid quantity");
+        }
+        if(cost<=0){
+            throw new BusinessException("Invalid Value");
+        }
+
 
         Bid newBid = new Bid(auctionId, ownerId, quantity, cost);
         allBids.add(newBid);

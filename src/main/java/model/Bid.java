@@ -10,17 +10,6 @@ public class Bid {
 
     public Bid(String auctionId, String ownerId, int quantity, Double value) {
 
-        if(auctionId==null){
-            throw new BusinessException("Invalid Auction ID");
-        }
-
-        if(quantity==0){
-            throw new BusinessException("Invalid quantity");
-        }
-        if(value==0){
-            throw new BusinessException("Invalid Value");
-        }
-
         this.auctionId=auctionId;
         this.value=value;
         this.quantity=quantity;

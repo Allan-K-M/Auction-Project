@@ -52,7 +52,7 @@ public class ManageAuctionsState extends State {
             MenuData.AUCTION_MANAGEMENT.createAuction(auctionId, ownerId, symbol, quantity, minimumPrice);
 
             display(" Auction id " + auctionId + " created successfully! ");
-        } catch (BusinessException | NumberFormatException e) {
+        } catch (BusinessException | NumberFormatException|NullPointerException e) {
             System.out.println(" Failed to create Auction! " + e.getMessage());
 
         }
